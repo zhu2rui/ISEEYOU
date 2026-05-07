@@ -235,6 +235,8 @@ Page({
   // ── 引导页点击 → 进入流程 ──────────────────────────────
   onGuideChoice(e: IAnyObject) {
     const choice = e.currentTarget.dataset.value
+    // 先清除引导状态，再跳转
+    this.setData({ introPhase: 0 })
     if (choice === '是') {
       this.goToStep(3)   // I SEE YOU
     } else {
