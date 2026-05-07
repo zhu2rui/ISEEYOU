@@ -281,6 +281,10 @@ Page({
   },
 
   // ── Step 9: 深呼吸 → 自动读出来 ──────────────────────
+  onStep9Back() {
+    this.goToStep(8)
+  }
+
   goToReading() {
     this.saveReleaseRecord()
     this.goToStep(10)

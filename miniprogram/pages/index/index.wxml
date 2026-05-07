@@ -191,9 +191,12 @@
         <text class="main-text">闭眼，深呼吸（3次）</text>
         <text class="highlight-text">静静感受它的离开</text>
       </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
+      <view class="btn-group {{showContent ? 'fade-in' : ''}}" style="margin-top: 48px;">
+        <view class="action-btn nav-btn" catchtap="onStep9Back">
+          <text>←</text>
+        </view>
+        <view class="action-btn nav-btn" catchtap="onSpeechDone">
+          <text>→</text>
         </view>
       </view>
     </view>
