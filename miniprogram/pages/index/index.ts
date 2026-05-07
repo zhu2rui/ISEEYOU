@@ -23,9 +23,9 @@ Page({
     allowType: '',
     releaseChoice: '',
     progressWidth: 0,
-    // BGM 状态（由 navigation-bar 同步）
+    // BGM 状态
     bgmEnabled: true,
-    // 入场引导阶段：0=等待动画, 1=引导语浮现中, 2=引导语出现完毕
+    // 入场引导：0=隐藏 1=引导语浮现中 2=引导语已浮现(等待用户点击) 3=淡出中
     introPhase: 0,
     // 释放记录
     releaseRecords: [] as ReleaseRecord[],
@@ -87,7 +87,6 @@ Page({
       wantText: record.want,
       showRecordsPanel: false,
     })
-    // 如果在 Step 0，直接跳到 Step 1
     if (this.data.currentStep === 0) {
       this.goToStep(1)
     }
@@ -105,24 +104,30 @@ Page({
 
   // ── 入场动画 ───────────────────────────────────────────
   startIntroAnimation() {
-    // Phase 0: 纯色背景等待 500ms
+    // Phase 0 → 1: 500ms 后，引导语开始"浮出水面"
     const t0 = setTimeout(() => {
       this.setData({ introPhase: 1 })
-      // Phase 1: 引导语"浮出水面"动画（1200ms），完成后进入 Phase 2
+      // 1.2s 后动画完成，进入 Phase 2，等待用户点击
       const t1 = setTimeout(() => {
         this.setData({ introPhase: 2 })
-        // Phase 2: 再等 800ms，显示完整 Step 0 内容
-        const t2 = setTimeout(() => {
-          this.setData({
-            showContent: true,
-            introPhase: 3,
-          })
-        }, 800)
-        this.privateTimers.push(t2)
       }, 1200)
       this.privateTimers.push(t1)
     }, 500)
     this.privateTimers.push(t0)
+  },
+
+  // 用户点击屏幕 → 引导语淡出，Step 0 内容淡入
+  onGuideTap() {
+    if (this.data.introPhase === 2) {
+      // 引导语淡出（Phase 2 → 3）
+      this.setData({ introPhase: 3 })
+      // 500ms 后完全隐藏引导，显示 Step 0
+      const t = setTimeout(() => {
+        this.setData({ introPhase: 0 })
+        this.setData({ showContent: true })
+      }, 500)
+      this.privateTimers.push(t)
+    }
   },
 
   goToStep(step: number) {
@@ -133,7 +138,6 @@ Page({
     this.setData({
       currentStep: step,
       showContent: false,
-      introPhase: 0,
     })
     this.updateProgress()
     setTimeout(() => {
@@ -218,7 +222,11 @@ Page({
   },
 
   handleTap() {
-    // 可以添加点击屏幕继续的功能
+    // 引导阶段：点击屏幕消失
+    if (this.data.introPhase > 0) {
+      this.onGuideTap()
+      return
+    }
   },
 
   restartPractice() {

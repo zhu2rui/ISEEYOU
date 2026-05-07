@@ -8,16 +8,20 @@
   bindbgmtoggle="onBgmToggle"
 ></navigation-bar>
 <scroll-view class="scrollarea" scroll-y type="list">
+  <!-- 全屏点击区域：引导阶段可点击 -->
   <view class="container" bindtap="handleTap">
 
-    <!-- ═══ 入场引导动画 ═══ -->
-    <!-- 阶段1+2：引导语"浮出水面" -->
-    <view class="intro-guide {{introPhase >= 1 ? 'intro-guide--visible' : ''}}" wx:if="{{introPhase > 0 && introPhase <= 2}}">
-      <text class="guide-text {{introPhase === 2 ? 'guide-text--done' : ''}}">你知道放下是什么意思吗？</text>
+    <!-- ═══ 入场引导：浮出水面 ═══ -->
+    <!-- introPhase: 0=隐藏 1=浮现中 2=已浮现(等待点击) 3=淡出中 -->
+    <view
+      class="intro-guide {{introPhase >= 1 ? 'intro-guide--visible' : ''}} {{introPhase === 3 ? 'intro-guide--fading' : ''}}"
+      wx:if="{{introPhase > 0}}"
+    >
+      <text class="guide-text {{introPhase >= 2 ? 'guide-text--done' : ''}}">你知道放下是什么意思吗？</text>
     </view>
 
-    <!-- ═══ Step 0: 开始 ═══ -->
-    <view class="content-area" wx:if="{{currentStep === 0}}">
+    <!-- ═══ Step 0: 开始（仅在非引导阶段显示）═══════════════ -->
+    <view class="content-area" wx:if="{{currentStep === 0 && introPhase === 0}}">
       <view class="start-page {{showContent ? 'fade-in' : ''}}">
         <text class="main-text">你现在是什么感觉？</text>
         <text class="sub-text">比如：心里堵、喘不上气、烦、焦虑…</text>
@@ -45,7 +49,7 @@
             >
               <text class="record-emotion">{{item.emotion || item.feeling}}</text>
               <text class="record-want" wx:if="{{item.want}}">想要：{{item.want}}</text>
-              <text class="record-date">{{item.timestamp ? formatDate(item.timestamp) : ''}}</text>
+              <text class="record-date">{{formatDate(item.timestamp)}}</text>
             </view>
           </view>
         </view>
