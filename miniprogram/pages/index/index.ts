@@ -217,6 +217,7 @@ Page({
 
   // ── 通用跳转 ───────────────────────────────────────────
   goToStep(step: number) {
+    // 单次 setData，避免微信批处理延迟
     this.setData({ currentStep: step, showContent: false })
     setTimeout(() => {
       this.setData({ showContent: true })
@@ -235,13 +236,11 @@ Page({
   // ── 引导页点击 → 进入流程 ──────────────────────────────
   onGuideChoice(e: IAnyObject) {
     const choice = e.currentTarget.dataset.value
-    // 先清除引导状态，再跳转
-    this.setData({ introPhase: 0 })
-    if (choice === '是') {
-      this.goToStep(3)   // I SEE YOU
-    } else {
-      this.goToStep(1)   // 拿小物件
-    }
+    // 合并为一次 setData: 清除引导 + 跳转步骤 + 隐藏内容（等100ms再显示）
+    this.setData({ introPhase: 0, currentStep: choice === '是' ? 3 : 1, showContent: false })
+    setTimeout(() => {
+      this.setData({ showContent: true })
+    }, 100)
   },
 
   // ── Step 4 → Step 5 ──────────────────────────────────
