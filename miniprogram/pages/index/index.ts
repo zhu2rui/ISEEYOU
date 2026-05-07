@@ -25,8 +25,12 @@ Page({
     progressWidth: 0,
     // BGM 状态
     bgmEnabled: true,
-    // 入场引导：0=隐藏 1=引导语浮现中 2=引导语已浮现(等待用户点击) 3=淡出中
-    introPhase: 0,
+    // 入场引导：
+    //   0 = 隐藏（正常流程）
+    //   1 = 引导语浮现中（CSS动画）
+    //   2 = 引导语已浮现，等待用户点击
+    //   3 = 引导语淡出中
+    introPhase: 1,
     // 释放记录
     releaseRecords: [] as ReleaseRecord[],
     showRecordsPanel: false,
@@ -37,7 +41,8 @@ Page({
   onLoad() {
     this.initBgmState()
     this.initReleaseRecords()
-    this.startIntroAnimation()
+    // 初始 introPhase 已是 1，立即触发引导动画（不需要等）
+    this.triggerGuideAnimation()
     this.updateProgress()
   },
 
@@ -102,26 +107,20 @@ Page({
     this.setData({ progressWidth: progress })
   },
 
-  // ── 入场动画 ───────────────────────────────────────────
-  startIntroAnimation() {
-    // Phase 0 → 1: 500ms 后，引导语开始"浮出水面"
-    const t0 = setTimeout(() => {
-      this.setData({ introPhase: 1 })
-      // 1.2s 后动画完成，进入 Phase 2，等待用户点击
-      const t1 = setTimeout(() => {
-        this.setData({ introPhase: 2 })
-      }, 1200)
-      this.privateTimers.push(t1)
-    }, 500)
-    this.privateTimers.push(t0)
+  // ── 入场引导动画 ────────────────────────────────────────
+  // introPhase: 0=隐藏 1=浮现中(CSS) 2=浮现完毕(等待点击) 3=淡出中
+  triggerGuideAnimation() {
+    // 500ms 后，引导语"浮出水面"动画完成，进入可点击状态
+    const t = setTimeout(() => {
+      this.setData({ introPhase: 2 })
+    }, 1200)
+    this.privateTimers.push(t)
   },
 
   // 用户点击屏幕 → 引导语淡出，Step 0 内容淡入
   onGuideTap() {
     if (this.data.introPhase === 2) {
-      // 引导语淡出（Phase 2 → 3）
       this.setData({ introPhase: 3 })
-      // 500ms 后完全隐藏引导，显示 Step 0
       const t = setTimeout(() => {
         this.setData({ introPhase: 0 })
         this.setData({ showContent: true })
@@ -222,14 +221,14 @@ Page({
   },
 
   handleTap() {
-    // 引导阶段：点击屏幕消失
-    if (this.data.introPhase > 0) {
+    if (this.data.introPhase === 2) {
       this.onGuideTap()
       return
     }
   },
 
   restartPractice() {
+    this.clearAllTimers()
     this.setData({
       currentStep: 0,
       showContent: false,
@@ -240,12 +239,14 @@ Page({
       allowType: '',
       releaseChoice: '',
       progressWidth: 0,
-      introPhase: 0,
+      // 立即进入引导阶段，不走 0 → 避免 Step 0 闪烁
+      introPhase: 1,
     })
+    // 等 Step 0 淡出动画完成后，重新触发引导动画
     setTimeout(() => {
-      this.startIntroAnimation()
+      this.triggerGuideAnimation()
       this.updateProgress()
-    }, 300)
+    }, 100)
   },
 
   clearAllTimers() {
