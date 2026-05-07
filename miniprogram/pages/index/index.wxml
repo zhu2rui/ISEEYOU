@@ -17,10 +17,10 @@
     >
       <text class="guide-text {{introPhase >= 2 ? 'guide-text--done' : ''}}">你知道「放下」是什么意思吗？</text>
       <view class="guide-buttons {{introPhase >= 2 ? 'fade-in' : ''}}">
-        <view class="guide-btn" bindtap="onGuideChoice" data-value="是">
+        <view class="guide-btn" catchtap="onGuideChoice" data-value="是">
           <text>是</text>
         </view>
-        <view class="guide-btn secondary" bindtap="onGuideChoice" data-value="否">
+        <view class="guide-btn secondary" catchtap="onGuideChoice" data-value="否">
           <text>否</text>
         </view>
       </view>
