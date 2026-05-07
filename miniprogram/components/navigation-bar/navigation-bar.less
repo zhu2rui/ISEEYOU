@@ -94,3 +94,45 @@
     transform: rotate(360deg);
   }
 }
+
+.weui-navigation-bar__right {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-right: var(--left);
+  height: 100%;
+}
+
+.bgm-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 -8px;
+}
+
+.bgm-icon {
+  width: 22px;
+  height: 22px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.bgm-icon--on {
+  -webkit-mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a5a5a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'%3E%3C/polygon%3E%3Cpath d='M19.07 4.93a10 10 0 0 1 0 14.14'%3E%3C/path%3E%3Cpath d='M15.54 8.46a5 5 0 0 1 0 7.07'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+  mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a5a5a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'%3E%3C/polygon%3E%3Cpath d='M19.07 4.93a10 10 0 0 1 0 14.14'%3E%3C/path%3E%3Cpath d='M15.54 8.46a5 5 0 0 1 0 7.07'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  background-color: #5a5a5a;
+}
+
+.bgm-icon--off {
+  -webkit-mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'%3E%3C/polygon%3E%3Cline x1='23' y1='9' x2='17' y2='15'%3E%3C/line%3E%3Cline x1='17' y1='9' x2='23' y2='15'%3E%3C/line%3E%3C/svg%3E") no-repeat center;
+  mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'%3E%3C/polygon%3E%3Cline x1='23' y1='9' x2='17' y2='15'%3E%3C/line%3E%3Cline x1='17' y1='9' x2='23' y2='15'%3E%3C/line%3E%3C/svg%3E") no-repeat center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  background-color: #bbb;
+}

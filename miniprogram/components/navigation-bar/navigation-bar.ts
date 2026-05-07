@@ -50,6 +50,11 @@ Component({
       type: Number,
       value: 1
     },
+    // BGM 是否开启
+    bgmEnabled: {
+      type: Boolean,
+      value: true
+    },
   },
   /**
    * 组件的初始数据
@@ -100,6 +105,15 @@ Component({
         })
       }
       this.triggerEvent('back', { delta: data.delta }, {})
-    }
+    },
+    home() {
+      wx.switchTab({ url: '/pages/index/index' })
+      this.triggerEvent('home', {}, {})
+    },
+    onBgmToggle() {
+      const newValue = !this.data.bgmEnabled
+      this.setData({ bgmEnabled: newValue })
+      this.triggerEvent('bgmtoggle', { enabled: newValue }, {})
+    },
   },
 })

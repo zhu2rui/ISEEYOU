@@ -55,9 +55,20 @@
         <slot name="center"></slot>
       </block>
     </view>
-    
-    <!-- 右侧留空 -->
+
+    <!-- 右侧：BGM 开关 -->
     <view class='weui-navigation-bar__right'>
+      <view
+        class="bgm-toggle"
+        bindtap="onBgmToggle"
+        aria-role="button"
+        aria-label="{{bgmEnabled ? '关闭BGM' : '开启BGM'}}"
+      >
+        <!-- 开启状态：喇叭 -->
+        <view wx:if="{{bgmEnabled}}" class="bgm-icon bgm-icon--on"></view>
+        <!-- 关闭状态：带斜线喇叭 -->
+        <view wx:else class="bgm-icon bgm-icon--off"></view>
+      </view>
       <slot name="right"></slot>
     </view>
   </view>

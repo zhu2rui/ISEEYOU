@@ -1,20 +1,56 @@
 <!--index.wxml-->
-<navigation-bar title="正念" back="{{false}}" color="#5a5a5a" background="#f8faf6"></navigation-bar>
+<navigation-bar
+  title="正念"
+  back="{{false}}"
+  color="#5a5a5a"
+  background="#f8faf6"
+  bgmEnabled="{{bgmEnabled}}"
+  bindbgmtoggle="onBgmToggle"
+></navigation-bar>
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container" bindtap="handleTap">
-    <!-- 0: 开始 - 输入具体感觉 -->
+
+    <!-- ═══ 入场引导动画 ═══ -->
+    <!-- 阶段1+2：引导语"浮出水面" -->
+    <view class="intro-guide {{introPhase >= 1 ? 'intro-guide--visible' : ''}}" wx:if="{{introPhase > 0 && introPhase <= 2}}">
+      <text class="guide-text {{introPhase === 2 ? 'guide-text--done' : ''}}">你知道放下是什么意思吗？</text>
+    </view>
+
+    <!-- ═══ Step 0: 开始 ═══ -->
     <view class="content-area" wx:if="{{currentStep === 0}}">
-      <view class="start-page">
-        <text class="main-text {{showContent ? 'fade-in' : ''}}">你现在是什么感觉？</text>
-        <text class="sub-text {{showContent ? 'fade-in' : ''}}">比如：心里堵、喘不上气、烦、焦虑…</text>
-        <input 
-          class="feeling-input {{showContent ? 'fade-in' : ''}}" 
-          placeholder="把感觉说粗来…" 
+      <view class="start-page {{showContent ? 'fade-in' : ''}}">
+        <text class="main-text">你现在是什么感觉？</text>
+        <text class="sub-text">比如：心里堵、喘不上气、烦、焦虑…</text>
+        <input
+          class="feeling-input"
+          placeholder="把感觉说粗来…"
           placeholder-class="input-placeholder"
           bindinput="onFeelingInput"
           value="{{feelingText}}"
         />
-        <view class="start-btn {{showContent ? 'fade-in' : ''}}" bindtap="nextStep">
+
+        <!-- 释放记录面板 -->
+        <view class="records-panel" wx:if="{{releaseRecords.length > 0}}">
+          <view class="records-header" bindtap="toggleRecordsPanel">
+            <text class="records-title">历史释放</text>
+            <text class="records-toggle">{{showRecordsPanel ? '收起' : '展开'}}</text>
+          </view>
+          <view class="records-list" wx:if="{{showRecordsPanel}}">
+            <view
+              class="record-item"
+              wx:for="{{releaseRecords}}"
+              wx:key="timestamp"
+              bindtap="loadRecord"
+              data-record="{{item}}"
+            >
+              <text class="record-emotion">{{item.emotion || item.feeling}}</text>
+              <text class="record-want" wx:if="{{item.want}}">想要：{{item.want}}</text>
+              <text class="record-date">{{item.timestamp ? formatDate(item.timestamp) : ''}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="start-btn" bindtap="nextStep">
           <text>好，繼續</text>
         </view>
       </view>
@@ -26,9 +62,9 @@
         <text class="main-text">给这个感觉起个名字</text>
         <text class="sub-text">比如：焦虑、恐惧、委屈、愤怒…</text>
       </view>
-      <input 
-        class="feeling-input {{showContent ? 'fade-in' : ''}}" 
-        placeholder="命名…" 
+      <input
+        class="feeling-input {{showContent ? 'fade-in' : ''}}"
+        placeholder="命名…"
         placeholder-class="input-placeholder"
         bindinput="onEmotionNameInput"
         value="{{emotionName}}"
@@ -91,9 +127,9 @@
         <text class="highlight-text">是我想要什么？</text>
         <text class="sub-text mt-10">被认可？控制？安全？价值？</text>
       </view>
-      <input 
-        class="feeling-input {{showContent ? 'fade-in' : ''}}" 
-        placeholder="我想要…" 
+      <input
+        class="feeling-input {{showContent ? 'fade-in' : ''}}"
+        placeholder="我想要…"
         placeholder-class="input-placeholder"
         bindinput="onWantInput"
         value="{{wantText}}"
