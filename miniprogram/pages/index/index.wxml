@@ -1,726 +1,348 @@
-<!--index.wxml-->
-<navigation-bar
-  title="正念"
-  back="{{false}}"
-  color="#5a5a5a"
-  background="#f8faf6"
-  bgmEnabled="{{bgmEnabled}}"
-  bindbgmtoggle="onBgmToggle"
-></navigation-bar>
-<scroll-view class="scrollarea" scroll-y type="list">
-  <view class="container" bindtap="handleTap">
+<!-- index.wxml -->
+<view class="container">
 
-    <!-- ═══ 入场引导 ═══ -->
-    <view
-      class="intro-guide {{introPhase >= 1 ? 'intro-guide--visible' : ''}} {{introPhase === 3 ? 'intro-guide--fading' : ''}}"
-      wx:if="{{introPhase > 0}}"
-    >
-      <text class="guide-text {{introPhase >= 2 ? 'guide-text--done' : ''}}">你知道「放下」是什么意思吗？</text>
-      <view class="guide-buttons {{introPhase >= 2 ? 'fade-in' : ''}}">
-        <view class="guide-btn" catchtap="onGuideChoice" data-value="是">
-          <text>是</text>
-        </view>
-        <view class="guide-btn secondary" catchtap="onGuideChoice" data-value="否">
-          <text>否</text>
-        </view>
+  <!-- 背景 -->
+  <view class="bg-layer"></view>
+
+  <!-- 引导层 -->
+  <view class="guide-layer {{introPhase >= 0 ? 'guide-visible' : ''}}" style="display: {{currentStep === -1 ? 'flex' : 'none'}}">
+    <view class="guide-content">
+      <text class="guide-title">I SEE YOU</text>
+      <text class="guide-subtitle">我看见你了</text>
+      <!-- 浮现文字 -->
+      <view class="guide-appear-text" style="opacity: {{introPhase >= 0 ? 1 : 0}}; filter: blur({{introPhase >= 0 ? 0 : 12}}px); transform: translateY({{introPhase >= 0 ? 0 : 30}}px)">
+        <text class="guide-question">此刻有什么人事物\n浮现在你的脑海里？</text>
+      </view>
+      <!-- 按钮 -->
+      <view class="guide-btns" style="opacity: {{introPhase >= 1 ? 1 : 0}}">
+        <button class="guide-btn" data-value="是" bindtap="onGuideChoice">是，有的</button>
+        <button class="guide-btn guide-btn-secondary" data-value="否" bindtap="onGuideChoice">否，没有</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 主内容卡片 -->
+  <view class="card {{showContent ? 'card-visible' : ''}" style="display: {{currentStep !== -1 ? 'flex' : 'none'}}">
+
+    <!-- ══════════ Step 1: 物件 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 1}}">
+      <view class="step-indicator"><text class="step-num">1</text></view>
+      <text class="step-question">那个物件是什么？</text>
+      <view class="btn-row">
+        <button class="btn-primary" bindtap="onStep1Next">继续</button>
       </view>
     </view>
 
-    <!-- ════════════════════════════════════════════════
-         Step 0: 引导语（introPhase=0 时显示）
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 0 && introPhase === 0}}">
-      <view class="start-page {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">你现在有什么感受？</text>
-        <text class="sub-text">如"我对某件事（或某个人）感到生气/委屈/焦虑/无力"</text>
-        <input
-          class="feeling-input"
-          placeholder="把感受说出来…"
-          placeholder-class="input-placeholder"
-          bindinput="onFeelingInput"
-          value="{{feelingText}}"
-        />
+    <!-- ══════════ Step 2: I SEE YOU ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 2}}">
+      <view class="step-indicator"><text class="step-num">2</text></view>
+      <text class="step-question">I SEE YOU</text>
+      <view class="guide-btns">
+        <button class="guide-btn" data-value="是" bindtap="onGuideChoice">是</button>
+        <button class="guide-btn guide-btn-secondary" data-value="否" bindtap="onGuideChoice">否</button>
+      </view>
+    </view>
 
-        <!-- 释放记录面板 -->
-        <view class="records-panel" wx:if="{{releaseRecords.length > 0}}">
-          <view class="records-header" bindtap="toggleRecordsPanel">
-            <text class="records-title">历史释放</text>
-            <text class="records-toggle">{{showRecordsPanel ? '收起' : '展开'}}</text>
+    <!-- ══════════ Step 3: 感受输入 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 3}}">
+      <view class="step-indicator"><text class="step-num">3</text></view>
+      <text class="step-question">此刻你感受到什么？</text>
+      <textarea class="feeling-input" placeholder="用一句话描述你的感受…" value="{{feelingText}}" bindinput="onFeelingInput" maxlength="200"></textarea>
+      <view class="btn-row">
+        <button class="btn-primary" bindtap="onStep3Next">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 4: 允许存在？ ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 4}}">
+      <view class="step-indicator"><text class="step-num">4</text></view>
+      <text class="step-question">你允许这份感受存在吗？</text>
+      <view class="btn-col">
+        <button class="btn-primary" data-value="允许" bindtap="onAllowExist">允许</button>
+        <button class="btn-secondary" data-value="不允许" bindtap="onAllowExist">不允许</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 5: 愿意放下？ ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 5}}">
+      <view class="step-indicator"><text class="step-num">5</text></view>
+      <text class="step-question">你愿意放下它吗？</text>
+      <view class="btn-col">
+        <button class="btn-primary" data-value="愿意" bindtap="onWantRelease">愿意</button>
+        <button class="btn-secondary" data-value="不愿意" bindtap="onWantRelease">不愿意</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 6: 现在就放下？ ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 6}}">
+      <view class="step-indicator"><text class="step-num">6</text></view>
+      <text class="step-question">现在就把它放下，可以吗？</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onCanReleaseNow">可以的</button>
+        <button class="btn-secondary" bindtap="onCanReleaseNow">有点难</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 7: 变淡还是清晰 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 7}}">
+      <view class="step-indicator"><text class="step-num">7</text></view>
+      <text class="step-question">此刻那份感受变淡了，还是更清晰了？</text>
+      <view class="btn-col">
+        <button class="btn-primary" data-value="变淡" bindtap="onFeelChange">变淡了</button>
+        <button class="btn-secondary" data-value="清晰" bindtap="onFeelChange">更清晰了</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 8: 深呼吸3次 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 8}}">
+      <view class="step-indicator"><text class="step-num">8</text></view>
+      <text class="step-question">好，慢慢地做个深呼吸\n吸气……呼气……\n再一个\n吸气……呼气……</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onStep9Next">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 9: 读"我允许…" ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 9}}">
+      <view class="step-indicator"><text class="step-num">9</text></view>
+      <text class="step-question">请默念或轻声读出来：\n\n"我允许它的存在\n我看见它了\n我愿意让它待在这里\n此刻我选择放下它"</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onReadingDone">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 10: 结束 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 10}}">
+      <view class="step-indicator"><text class="step-num">10</text></view>
+      <text class="step-question">结束了。\n\n你可以随时回来，\n再次与自己连接。</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="restartPractice">再次开始</button>
+        <button class="btn-secondary" bindtap="onBackToGuide">回到首页</button>
+      </view>
+      <view class="btn-col" style="margin-top: 40rpx;">
+        <button class="btn-records" bindtap="toggleRecordsPanel">
+          {{showRecordsPanel ? '收起记录' : '查看释放记录'}}
+        </button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 12: 三选一 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 11}}">
+      <view class="step-indicator"><text class="step-num">12</text></view>
+      <text class="step-question">你最想要的是？</text>
+      <view class="desire-grid">
+        <button class="desire-btn" data-value="被认可" bindtap="onChooseDesire">被认可</button>
+        <button class="desire-btn" data-value="想要控制" bindtap="onChooseDesire">想要控制</button>
+        <button class="desire-btn" data-value="想要安全" bindtap="onChooseDesire">想要安全</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 13: 能否允许想要被认可 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 12}}">
+      <view class="step-indicator"><text class="step-num">13</text></view>
+      <text class="step-question">你能否允许自己有这个想要？</text>
+      <view class="btn-col">
+        <button class="btn-primary" data-value="能" bindtap="onAllowDesire">能</button>
+        <button class="btn-secondary" data-value="不能" bindtap="onAllowDesire">不能</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 14/15/16: 说三遍 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 13 || currentStep === 14 || currentStep === 15}}">
+      <view class="step-indicator"><text class="step-num">{{currentStep === 13 ? 14 : currentStep === 14 ? 15 : 16}}</text></view>
+      <text class="step-question">请默念或轻声读出来：\n\n"我允许自己想要被认可\n我看见我自己在渴望被认可\n我愿意陪伴这份渴望\n此刻我选择放下控制"</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onSpeechDone">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 17: 感受想要 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 16}}">
+      <view class="step-indicator"><text class="step-num">17</text></view>
+      <text class="step-question">此刻再感受一下那份"想要被认可"，\n它的感受是什么？</text>
+      <textarea class="feeling-input" placeholder="用一句话描述…" value="{{desireText}}" bindinput="onDesireInput" maxlength="200"></textarea>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onFeelDone">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 18: 能否允许想要控制 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 17}}">
+      <view class="step-indicator"><text class="step-num">18</text></view>
+      <text class="step-question">你能否允许自己有这个想要？</text>
+      <view class="btn-col">
+        <button class="btn-primary" data-value="能" bindtap="onAllowDesire">能</button>
+        <button class="btn-secondary" data-value="不能" bindtap="onAllowDesire">不能</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 19/20/21: 说三遍 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 18 || currentStep === 19 || currentStep === 20}}">
+      <view class="step-indicator"><text class="step-num">{{currentStep === 18 ? 19 : currentStep === 19 ? 20 : 21}}</text></view>
+      <text class="step-question">请默念或轻声读出来：\n\n"我允许自己想要控制\n我看见我自己在渴望控制\n我愿意陪伴这份渴望\n此刻我选择放下控制"</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onSpeechDone">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 22: 能否允许想要安全 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 21}}">
+      <view class="step-indicator"><text class="step-num">22</text></view>
+      <text class="step-question">你能否允许自己有这个想要？</text>
+      <view class="btn-col">
+        <button class="btn-primary" data-value="能" bindtap="onAllowDesire">能</button>
+        <button class="btn-secondary" data-value="不能" bindtap="onAllowDesire">不能</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 23/24/25: 说三遍 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 22 || currentStep === 23 || currentStep === 24}}">
+      <view class="step-indicator"><text class="step-num">{{currentStep === 22 ? 23 : currentStep === 23 ? 24 : 25}}</text></view>
+      <text class="step-question">请默念或轻声读出来：\n\n"我允许自己想要安全\n我看见我自己在渴望安全\n我愿意陪伴这份渴望\n此刻我选择放下控制"</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onSpeechDone">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 26: 不愿意底下想要什么 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 25}}">
+      <view class="step-indicator"><text class="step-num">26</text></view>
+      <text class="step-question">在"不愿意"底下，你想要什么？</text>
+      <textarea class="feeling-input" placeholder="用一句话描述…" value="{{desireText}}" bindinput="onDesireInput" maxlength="200"></textarea>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onDesireConfirm">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 27: 能否允许 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 26}}">
+      <view class="step-indicator"><text class="step-num">27</text></view>
+      <text class="step-question">你能否允许自己有这个想要？</text>
+      <view class="btn-col">
+        <button class="btn-primary" data-value="能" bindtap="onAllowThese">能</button>
+        <button class="btn-secondary" data-value="不能" bindtap="onAllowThese">不能</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 28/29/30: 说三遍 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 27 || currentStep === 28 || currentStep === 29}}">
+      <view class="step-indicator"><text class="step-num">{{currentStep === 27 ? 28 : currentStep === 28 ? 29 : 30}}</text></view>
+      <text class="step-question">请默念或轻声读出来：\n\n"我允许它的存在\n我看见它了\n我愿意让它待在这里\n此刻我选择放下它"</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onSpeechDone">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 31: 不允许抗拒 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 30}}">
+      <view class="step-indicator"><text class="step-num">31</text></view>
+      <text class="step-question">你能否允许自己对它的抗拒存在？</text>
+      <view class="btn-col">
+        <button class="btn-primary" data-value="允许" bindtap="onAllowResistance">允许</button>
+        <button class="btn-secondary" data-value="不允许" bindtap="onAllowResistance">不允许</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 32: 不能允许 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 31}}">
+      <view class="step-indicator"><text class="step-num">32</text></view>
+      <text class="step-question">你能否允许自己不能允许？</text>
+      <view class="btn-col">
+        <button class="btn-primary" data-value="能" bindtap="onCanNotRelease">能</button>
+        <button class="btn-secondary" data-value="不能" bindtap="onCanNotRelease">不能</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 33: 深呼吸说出来 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 32}}">
+      <view class="step-indicator"><text class="step-num">33</text></view>
+      <text class="step-question">好，慢慢做个深呼吸\n把"我不能允许"说出来\n感受它穿过你的身体</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onBreatheDone">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 34: 身体紧绷 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 33}}">
+      <view class="step-indicator"><text class="step-num">34</text></view>
+      <text class="step-question">去感受身体里那份紧绷\n感受它所在的位置\n温柔地陪伴它</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onTensionNext">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 35: 愿不愿意和紧绷待在一起 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 34}}">
+      <view class="step-indicator"><text class="step-num">35</text></view>
+      <text class="step-question">你愿不愿意和这份紧绷\n待在一起？</text>
+      <view class="btn-col">
+        <button class="btn-primary" data-value="愿意" bindtap="onStayWithTension">愿意</button>
+        <button class="btn-secondary" data-value="不愿意" bindtap="onStayWithTension">不愿意</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 36: 再来一次 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 35}}">
+      <view class="step-indicator"><text class="step-num">36</text></view>
+      <text class="step-question">好，慢慢做个深呼吸\n感受紧绷经过你的身体\n允许它来，也允许它离开</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onTensionAgain">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 37: 最后一次 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 36}}">
+      <view class="step-indicator"><text class="step-num">37</text></view>
+      <text class="step-question">再来一次\n吸气……呼气……\n感受它慢慢消散</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onTensionFinal">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 38: 一起待着 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 37}}">
+      <view class="step-indicator"><text class="step-num">38</text></view>
+      <text class="step-question">你也可以选择\n就这样和它待一会儿\n不急着放下</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onStayTogether">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ Step 39: 读允许 ══════════ -->
+    <view class="step-content" wx:if="{{currentStep === 38}}">
+      <view class="step-indicator"><text class="step-num">39</text></view>
+      <text class="step-question">请默念或轻声读出来：\n\n"我允许它的存在\n我看见它了\n我愿意让它待在这里\n此刻我选择放下它"</text>
+      <view class="btn-col">
+        <button class="btn-primary" bindtap="onFinalReadingDone">继续</button>
+      </view>
+    </view>
+
+    <!-- ══════════ 释放记录面板 ══════════ -->
+    <view class="records-panel {{showRecordsPanel ? 'records-visible' : ''}}" wx:if="{{showRecordsPanel}}">
+      <view class="records-header">
+        <text class="records-title">释放记录</text>
+        <text class="records-count">{{releaseRecords.length}} 条</text>
+      </view>
+      <scroll-view class="records-list" scroll-y>
+        <view wx:for="{{releaseRecords}}" wx:key="timestamp" class="record-item">
+          <view class="record-content" data-record="{{item}}" bindtap="loadRecord">
+            <text class="record-date">{{formatDate(item.timestamp)}}</text>
+            <text class="record-feeling">{{item.feeling}}</text>
+            <text class="record-desire" wx:if="{{item.desire}}">{{item.desire}} · {{item.desireText}}</text>
           </view>
-          <view class="records-list" wx:if="{{showRecordsPanel}}">
-            <view
-              class="record-item"
-              wx:for="{{releaseRecords}}"
-              wx:key="timestamp"
-              bindtap="loadRecord"
-              data-record="{{item}}"
-            >
-              <text class="record-emotion">{{item.feeling}}</text>
-              <text class="record-want" wx:if="{{item.desire}}">{{item.desire}}</text>
-              <text class="record-date">{{formatDate(item.timestamp)}}</text>
-            </view>
-          </view>
+          <view class="record-delete" data-index="{{index}}" bindtap="deleteRecord">×</view>
         </view>
-
-        <view class="start-btn" bindtap="onFeelingConfirm">
-          <text>继续</text>
+        <view class="records-empty" wx:if="{{releaseRecords.length === 0}}">
+          <text>暂无记录</text>
         </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 1: 拿一个小物件
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 1}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">拿一个小物件</text>
-        <text class="sub-text">感受"握住"（约5秒）</text>
-        <text class="sub-text">再松手，任其掉落</text>
-        <text class="sub-text">这就是「放下」</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onStep1Next">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 2: 这就是放下
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 2}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">这就是「放下」</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onStep2Next">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 3: I SEE YOU
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 3}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text highlight-i">I SEE YOU</text>
-        <text class="sub-text">我看见你了</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onStep3Next">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 5: 你允许这个感受存在吗？
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 5}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">你允许这个感受存在吗？</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onAllowExist" data-value="允许">
-          <text>允许</text>
-        </view>
-        <view class="action-btn" bindtap="onAllowExist" data-value="不允许">
-          <text>不允许</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 6: 你愿意放下这个让你不舒服的感受吗？
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 6}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">你愿意放下这个让你不舒服的感受吗？</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onWantRelease" data-value="愿意">
-          <text>愿意</text>
-        </view>
-        <view class="action-btn" bindtap="onWantRelease" data-value="不愿意">
-          <text>不愿意</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 7: 现在就放下，可以吗？
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 7}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">现在就放下，可以吗？</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onCanReleaseNow" data-value="可以">
-          <text>可以</text>
-        </view>
-        <view class="action-btn" bindtap="onCanReleaseNow" data-value="有点难">
-          <text>有点难</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 8: 闭眼深呼吸，感受变淡还是更清晰
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 8}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">闭眼深呼吸</text>
-        <text class="sub-text">感受它是在慢慢变淡，还是更清晰？</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onFeelChange" data-value="变淡">
-          <text>变淡</text>
-        </view>
-        <view class="action-btn" bindtap="onFeelChange" data-value="清晰">
-          <text>清晰</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 9: 闭眼深呼吸（3次），静静感受它的离开
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 9}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">闭眼，深呼吸（3次）</text>
-        <text class="highlight-text">静静感受它的离开</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}" style="margin-top: 48px;">
-        <view class="action-btn nav-btn" catchtap="onStep9Back">
-          <text>←</text>
-        </view>
-        <view class="action-btn nav-btn" catchtap="onSpeechDone">
-          <text>→</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 10: 读出来（允许一切）
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 10}}">
-      <view class="step-content reading-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">读出来：</text>
-        <text class="reading-text">我允许一切如其所是</text>
-        <text class="reading-text">允许事情如此发生，允许别人如是对待</text>
-        <text class="reading-text">允许念头起落，允许情绪来去</text>
-        <text class="reading-text">允许自己本来的样子</text>
-        <text class="reading-text">不抗拒，不纠结，不内耗</text>
-        <text class="reading-text">全然经历，全然接纳</text>
-        <text class="reading-text">只静静看着，温柔允许</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onReadingDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 11: 结束
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 11}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">结束了</text>
-        <text class="sub-text mt-20">谢谢你愿意和自己待一会儿</text>
-      </view>
-      <view class="restart-btn {{showContent ? 'fade-in' : ''}}" bindtap="restartPractice">
-        <text>再来一次</text>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 12: 情绪底下想要什么（三选一）
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 12}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">这股情绪底下</text>
-        <text class="highlight-text">是你想要被认可、想要控制还是想要安全？</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onChooseDesire" data-value="被认可">
-          <text>被认可</text>
-        </view>
-        <view class="action-btn" bindtap="onChooseDesire" data-value="想要控制">
-          <text>想要控制</text>
-        </view>
-        <view class="action-btn" bindtap="onChooseDesire" data-value="想要安全">
-          <text>想要安全</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 13: 能否允许自己就是想要被认可
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 13}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">你能否允许自己</text>
-        <text class="highlight-text">就是想要被认可？</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onAllowDesire" data-value="能">
-          <text>能</text>
-        </view>
-        <view class="action-btn" bindtap="onAllowDesire" data-value="不能">
-          <text>不能</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 14: 大声说出来
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 14}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">大声说出来：</text>
-        <text class="highlight-text">"我就是想要被认可"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 15: 重复一遍
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 15}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">重复一遍：</text>
-        <text class="highlight-text">"我就是想要被认可"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 16: 最后一遍
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 16}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">最后一遍：</text>
-        <text class="highlight-text">"我现在就是想要被认可"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 17: 感受这份想要（5秒）
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 17}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">感受这份"想要"（约5秒）</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onFeelDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 18: 能否允许自己就是想要控制
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 18}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">你能否允许自己</text>
-        <text class="highlight-text">就是想要控制？</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onAllowDesire" data-value="能">
-          <text>能</text>
-        </view>
-        <view class="action-btn" bindtap="onAllowDesire" data-value="不能">
-          <text>不能</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 19: 大声说出来
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 19}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">大声说出来：</text>
-        <text class="highlight-text">"我就是想要控制"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 20: 重复一遍
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 20}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">重复一遍：</text>
-        <text class="highlight-text">"我就是想要控制"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 21: 最后一遍
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 21}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">最后一遍：</text>
-        <text class="highlight-text">"我现在就是想要控制"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 22: 能否允许自己就是想要安全
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 22}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">你能否允许自己</text>
-        <text class="highlight-text">就是想要安全？</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onAllowDesire" data-value="能">
-          <text>能</text>
-        </view>
-        <view class="action-btn" bindtap="onAllowDesire" data-value="不能">
-          <text>不能</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 23: 大声说出来
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 23}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">大声说出来：</text>
-        <text class="highlight-text">"我就是想要安全"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 24: 重复一遍
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 24}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">重复一遍：</text>
-        <text class="highlight-text">"我就是想要安全"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 25: 最后一遍
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 25}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">最后一遍：</text>
-        <text class="highlight-text">"我现在就是想要安全"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 26: 不愿意底下想要什么
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 26}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="sub-text">想一想，这个"不愿意"底下</text>
-        <text class="highlight-text">是你想要什么？</text>
-        <text class="sub-text mt-10">如愤怒让我有力量感、委屈让我占理、焦虑让我觉得在掌控局面、嫉妒让我看清自己的渴望</text>
-      </view>
-      <input
-        class="feeling-input {{showContent ? 'fade-in' : ''}}"
-        placeholder="说出你的想要…"
-        placeholder-class="input-placeholder"
-        bindinput="onDesireInput"
-        value="{{desireText}}"
-      />
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onDesireConfirm">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 27: 能否允许自己就是想要这些
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 27}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">你能否允许自己</text>
-        <text class="highlight-text">就是想要这些？</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onAllowThese" data-value="能">
-          <text>能</text>
-        </view>
-        <view class="action-btn" bindtap="onAllowThese" data-value="不能">
-          <text>不能</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 28: 大声说出来
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 28}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">大声说出来：</text>
-        <text class="highlight-text">"我就是想要这样"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 29: 重复一遍
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 29}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">重复一遍：</text>
-        <text class="highlight-text">"我就是想要这样"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 30: 最后一遍
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 30}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">最后一遍：</text>
-        <text class="highlight-text">"我现在就是想要这样"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onSpeechDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 31: 允许抗拒吗
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 31}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">你允许自己对这个感受</text>
-        <text class="highlight-text">抱有抗拒吗？</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onAllowResistance" data-value="允许">
-          <text>允许</text>
-        </view>
-        <view class="action-btn" bindtap="onAllowResistance" data-value="不允许">
-          <text>不允许</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 32: 不允许底下想要什么
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 32}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="sub-text">想一想，这个"不允许"底下</text>
-        <text class="highlight-text">是你想要什么？</text>
-        <text class="sub-text mt-10">如愤怒让我有力量感、委屈让我占理、焦虑让我觉得在掌控局面、嫉妒让我看清自己的渴望</text>
-      </view>
-      <input
-        class="feeling-input {{showContent ? 'fade-in' : ''}}"
-        placeholder="说出你的想要…"
-        placeholder-class="input-placeholder"
-        bindinput="onDesireInput"
-        value="{{desireText}}"
-      />
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onDesireConfirm">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 33: 能不能现在就是不放下
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 33}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">能不能</text>
-        <text class="highlight-text">"现在就是不放下"</text>
-        <text class="main-text">这个感受？</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onCanNotRelease" data-value="能">
-          <text>能</text>
-        </view>
-        <view class="action-btn" bindtap="onCanNotRelease" data-value="不能">
-          <text>不能</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 34: 深呼吸说出来
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 34}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">深呼吸（3次）</text>
-        <text class="highlight-text">说出来：</text>
-        <text class="sub-text">"我现在可以不放下"</text>
-        <text class="sub-text">"我愿意让这个感受存在"</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onBreatheDone">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 35: 身体紧绷
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 35}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">深呼吸（3次）</text>
-        <text class="sub-text">当你不放下这个感受时</text>
-        <text class="highlight-text">身体哪里是紧绷的？</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onTensionNext">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 36: 愿不愿意和紧绷待在一起
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 36}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="highlight-text">愿不愿意永远和这个"紧绷"待在一起？</text>
-      </view>
-      <view class="btn-group {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn" bindtap="onStayWithTension" data-value="愿意">
-          <text>愿意</text>
-        </view>
-        <view class="action-btn" bindtap="onStayWithTension" data-value="不愿意">
-          <text>不愿意</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 37: 再问一遍
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 37}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="highlight-text">再问一遍：</text>
-        <text class="highlight-text">愿不愿意永远和这个"紧绷"待在一起？</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onTensionAgain">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 38: 最后一遍
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 38}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="highlight-text">最后一遍：</text>
-        <text class="highlight-text">愿不愿意永远和这个"紧绷"待在一起？</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onTensionFinal">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 39: 好，那我们一起待着
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 39}}">
-      <view class="step-content {{showContent ? 'fade-in' : ''}}">
-        <text class="highlight-text">好</text>
-        <text class="sub-text">那我们就一起待着</text>
-        <text class="sub-text">不用放下</text>
-        <text class="sub-text">不用变好</text>
-        <text class="sub-text">你可以这样</text>
-        <text class="highlight-text mt-20">我在</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onStayTogether">
-          <text>继续</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- ════════════════════════════════════════════════
-         Step 40: 读出来 → 结束
-    ═══════════════════════════════════════════════════ -->
-    <view class="content-area" wx:if="{{currentStep === 40}}">
-      <view class="step-content reading-content {{showContent ? 'fade-in' : ''}}">
-        <text class="main-text">读出来：</text>
-        <text class="reading-text">我允许一切如其所是</text>
-        <text class="reading-text">允许事情如此发生，允许别人如是对待</text>
-        <text class="reading-text">允许念头起落，允许情绪来去</text>
-        <text class="reading-text">允许自己本来的样子</text>
-      </view>
-      <view class="btn-group-vertical {{showContent ? 'fade-in' : ''}}">
-        <view class="action-btn step-btn" bindtap="onFinalReadingDone">
-          <text>完成</text>
-        </view>
-      </view>
+      </scroll-view>
     </view>
 
   </view>
-</scroll-view>
+
+  <!-- BGM 按钮 -->
+  <view class="bgm-btn" bindtap="onBgmToggle">
+    <text class="bgm-icon">{{bgmEnabled ? '🔊' : '🔇'}}</text>
+  </view>
+
+</view>

@@ -1,393 +1,451 @@
-/**index.less**/
-page {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: #f8faf6;
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-}
+// index.less
+@bg-deep: #0a1628;
+@bg-card: rgba(255, 255, 255, 0.06);
+@text-primary: #e8e2d6;
+@text-secondary: rgba(232, 226, 214, 0.6);
+@accent: #c9a96e;
+@accent-dim: rgba(201, 169, 110, 0.3);
+@border-subtle: rgba(255, 255, 255, 0.08);
 
-.scrollarea {
-  flex: 1;
-  overflow-y: hidden;
+page {
+  background: @bg-deep;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: @text-primary;
+  overflow-x: hidden;
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   min-height: 100vh;
-  padding: 0 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 40rpx;
   box-sizing: border-box;
 }
 
-.content-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  padding: 60px 0;
-  box-sizing: border-box;
+// ── 背景 ──────────────────────────────────────────────
+.bg-layer {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: @bg-deep;
+  z-index: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(30, 60, 90, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(20, 40, 60, 0.3) 0%, transparent 50%);
+    animation: bgFloat 20s ease-in-out infinite;
+  }
 }
 
-.start-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+@keyframes bgFloat {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-2%, 1%) rotate(1deg); }
 }
 
-/* ─── 输入框 ─── */
-.feeling-input {
-  width: 80%;
-  padding: 16px 20px;
-  margin-top: 40px;
-  background-color: #fff;
-  border: 1px solid #d4dcd0;
-  border-radius: 12px;
-  font-size: 17px;
-  color: #4a4a4a;
-  text-align: center;
-}
-
-.input-placeholder {
-  color: #bbb;
-  font-size: 16px;
-}
-
-/* ─── 主按钮 ─── */
-.start-btn {
-  margin-top: 40px;
-  padding: 16px 48px;
-  background-color: #a8b5a0;
-  border-radius: 28px;
-  transition: all 0.3s ease;
-}
-.start-btn:active {
-  background-color: #95a38c;
-  transform: scale(0.98);
-}
-.start-btn text {
-  font-size: 16px;
-  color: #fff;
-  font-weight: 400;
-  letter-spacing: 1px;
-}
-
-/* ─── 步骤内容 ─── */
-.step-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  opacity: 0;
-  width: 100%;
-}
-
-.fade-in {
-  animation: fadeInFloat 1s ease-out forwards;
-}
-
-@keyframes fadeInFloat {
-  0%   { opacity: 0; filter: blur(4px); }
-  100% { opacity: 1; filter: blur(0); }
-}
-
-/* ─── 文字样式 ─── */
-.main-text {
-  font-size: 22px;
-  color: #4a4a4a;
-  line-height: 1.8;
-  font-weight: 400;
-  letter-spacing: 0.5px;
-  text-align: center;
-  width: 100%;
-}
-
-.sub-text {
-  font-size: 16px;
-  color: #8a8a8a;
-  margin-top: 12px;
-  line-height: 1.7;
-  font-weight: 300;
-  text-align: center;
-  width: 100%;
-}
-
-.highlight-text {
-  font-size: 20px;
-  color: #6b7d66;
-  margin-top: 16px;
-  line-height: 1.8;
-  font-weight: 400;
-  text-align: center;
-  width: 100%;
-}
-
-.highlight-i {
-  font-size: 36px;
-  color: #6b7d66;
-  letter-spacing: 4px;
-  font-weight: 600;
-  text-align: center;
-  width: 100%;
-}
-
-.mt-10 { margin-top: 10px; }
-.mt-20 { margin-top: 20px; }
-
-/* ─── 朗读内容 ─── */
-.reading-content {
-  gap: 0;
-}
-
-.reading-text {
-  font-size: 16px;
-  color: #6b7d66;
-  line-height: 2;
-  font-weight: 300;
-  margin-top: 8px;
-  letter-spacing: 0.5px;
-  text-align: center;
-  width: 100%;
-}
-
-/* ─── 按钮组 ─── */
-.btn-group {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 48px;
-  opacity: 0;
-  flex-wrap: nowrap;
-  width: 100%;
-}
-.btn-group .action-btn { flex: 0 0 auto; white-space: nowrap; }
-
-.btn-group-vertical {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  margin-top: 48px;
-  opacity: 0;
-  width: 100%;
-}
-.btn-group-vertical .action-btn { width: 200px; }
-
-/* ─── 通用按钮 ─── */
-.action-btn {
-  padding: 14px 32px;
-  background-color: #fff;
-  border: 1px solid #d4dcd0;
-  border-radius: 24px;
-  text-align: center;
-  transition: all 0.3s ease;
-  min-width: 100px;
-}
-.action-btn:active {
-  background-color: #f0f4ed;
-  border-color: #a8b5a0;
-  transform: scale(0.98);
-}
-.action-btn text {
-  font-size: 15px;
-  color: #5a5a5a;
-  font-weight: 400;
-  white-space: nowrap;
-}
-.action-btn.secondary {
-  background-color: #f5f5f5;
-  border-color: #e0e0e0;
-}
-.nav-btn {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  padding: 0;
-  background: #fff;
-  border: 1px solid #d4dcd0;
-}
-.nav-btn:active {
-  background: #f0f4ed;
-  transform: scale(0.95);
-}
-.nav-btn text {
-  color: #6b7d66;
-  font-size: 28px;
-}
-
-.action-btn.secondary text { color: #999; }
-
-/* ─── 步骤确认按钮 ─── */
-.step-btn {
-  margin-top: 40px;
-  opacity: 0;
-  min-width: 100px;
-}
-.step-btn text {
-  font-size: 16px;
-  color: #6b7d66;
-  font-weight: 400;
-}
-
-/* ─── 重新开始按钮 ─── */
-.restart-btn {
-  margin-top: 60px;
-  padding: 14px 40px;
-  background-color: #a8b5a0;
-  border-radius: 24px;
-  transition: all 0.3s ease;
-  opacity: 0;
-}
-.restart-btn:active {
-  background-color: #95a38c;
-  transform: scale(0.98);
-}
-.restart-btn text {
-  font-size: 15px;
-  color: #fff;
-  font-weight: 400;
-  letter-spacing: 1px;
-}
-
-/* ═══ 入场引导 ═══ */
-.intro-guide {
+// ── 引导层 ─────────────────────────────────────────────
+.guide-layer {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #f8faf6;
-  z-index: 50;
+  z-index: 10;
   opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.55s ease;
+  background: @bg-deep;
+
+  &.guide-visible {
+    opacity: 1;
+  }
 }
 
-.intro-guide--visible {
-  opacity: 1;
-}
-
-.intro-guide--fading {
-  opacity: 0;
-}
-
-.guide-text {
-  font-size: 24px;
-  color: #6b7d66;
-  font-weight: 400;
-  letter-spacing: 1px;
-  text-align: center;
-  padding: 0 40px;
-  line-height: 1.8;
-  opacity: 0;
-  filter: blur(8px);
-  transform: translateY(30px);
-  transition: opacity 1.2s ease-out, filter 1.2s ease-out, transform 1.2s ease-out;
-}
-
-.guide-text--done {
-  opacity: 1;
-  filter: blur(0);
-  transform: translateY(0);
-}
-
-.guide-buttons {
+.guide-content {
   display: flex;
-  gap: 20px;
-  margin-top: 60px;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 40rpx;
+  width: 100%;
+  max-width: 600rpx;
+  box-sizing: border-box;
+}
+
+.guide-title {
+  font-size: 72rpx;
+  font-weight: 200;
+  letter-spacing: 12rpx;
+  color: @text-primary;
+  margin-bottom: 16rpx;
+}
+
+.guide-subtitle {
+  font-size: 26rpx;
+  letter-spacing: 6rpx;
+  color: @accent;
+  opacity: 0.7;
+  margin-bottom: 80rpx;
+}
+
+.guide-appear-text {
+  transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s ease;
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.guide-question {
+  font-size: 34rpx;
+  line-height: 1.8;
+  color: @text-primary;
+  white-space: pre-line;
+  text-align: center;
+}
+
+.guide-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  width: 100%;
+  max-width: 440rpx;
   opacity: 0;
   transition: opacity 0.8s ease;
 }
 
 .guide-btn {
-  padding: 14px 40px;
-  background-color: #a8b5a0;
-  border-radius: 28px;
-  transition: all 0.3s ease;
-}
-.guide-btn:active {
-  background-color: #95a38c;
-  transform: scale(0.98);
-}
-.guide-btn text {
-  font-size: 16px;
-  color: #fff;
+  width: 100%;
+  padding: 28rpx 0;
+  border-radius: 100rpx;
+  font-size: 30rpx;
   font-weight: 400;
-  letter-spacing: 1px;
-}
-.guide-btn.secondary {
-  background-color: #fff;
-  border: 1px solid #d4dcd0;
-}
-.guide-btn.secondary text {
-  color: #5a5a5a;
+  letter-spacing: 2rpx;
+  background: @accent-dim;
+  color: @text-primary;
+  border: 1px solid @accent;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.97);
+    background: rgba(201, 169, 110, 0.5);
+  }
 }
 
-/* ═══ 释放记录面板 ═══ */
+.guide-btn-secondary {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: @text-secondary;
+
+  &:active {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+// ── 主内容卡片 ───────────────────────────────────────────
+.card {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
+  width: calc(100% - 80rpx);
+  max-width: 640rpx;
+  background: @bg-card;
+  border: 1px solid @border-subtle;
+  border-radius: 40rpx;
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  padding: 60rpx 48rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.38s ease, transform 0.38s ease;
+
+  &.card-visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+// ── 步骤内容 ─────────────────────────────────────────────
+.step-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.step-indicator {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  border: 1px solid @accent-dim;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 48rpx;
+}
+
+.step-num {
+  font-size: 24rpx;
+  color: @accent;
+  font-weight: 300;
+}
+
+.step-question {
+  font-size: 36rpx;
+  line-height: 1.7;
+  color: @text-primary;
+  white-space: pre-line;
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+// ── 按钮 ────────────────────────────────────────────────
+.btn-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-col {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.btn-primary {
+  width: 100%;
+  max-width: 440rpx;
+  padding: 28rpx 0;
+  border-radius: 100rpx;
+  font-size: 30rpx;
+  font-weight: 400;
+  letter-spacing: 2rpx;
+  background: @accent;
+  color: #1a1a2e;
+  border: none;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.97);
+    opacity: 0.85;
+  }
+}
+
+.btn-secondary {
+  width: 100%;
+  max-width: 440rpx;
+  padding: 28rpx 0;
+  border-radius: 100rpx;
+  font-size: 30rpx;
+  font-weight: 400;
+  letter-spacing: 2rpx;
+  background: transparent;
+  color: @text-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.97);
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.btn-records {
+  width: 100%;
+  max-width: 440rpx;
+  padding: 22rpx 0;
+  border-radius: 100rpx;
+  font-size: 26rpx;
+  font-weight: 300;
+  letter-spacing: 2rpx;
+  background: transparent;
+  color: @text-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+// ── 输入框 ─────────────────────────────────────────────
+.feeling-input {
+  width: 100%;
+  max-width: 520rpx;
+  min-height: 160rpx;
+  padding: 28rpx 32rpx;
+  border-radius: 24rpx;
+  border: 1px solid @border-subtle;
+  background: rgba(255, 255, 255, 0.04);
+  color: @text-primary;
+  font-size: 30rpx;
+  line-height: 1.6;
+  text-align: left;
+  box-sizing: border-box;
+  margin-bottom: 48rpx;
+  caret-color: @accent;
+
+  &::placeholder {
+    color: rgba(232, 226, 214, 0.3);
+  }
+}
+
+// ── 三选一 ─────────────────────────────────────────────
+.desire-grid {
+  width: 100%;
+  max-width: 520rpx;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20rpx;
+  margin-top: 20rpx;
+}
+
+.desire-btn {
+  padding: 36rpx 16rpx;
+  border-radius: 20rpx;
+  border: 1px solid @border-subtle;
+  background: rgba(255, 255, 255, 0.04);
+  color: @text-primary;
+  font-size: 28rpx;
+  line-height: 1.4;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.96);
+    background: @accent-dim;
+    border-color: @accent;
+  }
+}
+
+// ── 释放记录面板 ─────────────────────────────────────────
 .records-panel {
-  width: 80%;
-  margin-top: 32px;
-  background-color: #fff;
-  border: 1px solid #d4dcd0;
-  border-radius: 12px;
-  overflow: hidden;
+  width: 100%;
+  max-width: 520rpx;
+  margin-top: 40rpx;
+  border-top: 1px solid @border-subtle;
+  padding-top: 32rpx;
+  opacity: 0;
+  transform: translateY(10rpx);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+
+  &.records-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
 }
 
 .records-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  cursor: pointer;
+  margin-bottom: 24rpx;
 }
 
 .records-title {
-  font-size: 14px;
-  color: #8a8a8a;
-  font-weight: 300;
+  font-size: 26rpx;
+  color: @accent;
+  letter-spacing: 2rpx;
 }
 
-.records-toggle {
-  font-size: 13px;
-  color: #a8b5a0;
+.records-count {
+  font-size: 22rpx;
+  color: @text-secondary;
 }
 
 .records-list {
-  border-top: 1px solid #e8ebe5;
-  max-height: 200px;
-  overflow-y: auto;
+  max-height: 400rpx;
 }
 
 .record-item {
-  padding: 10px 16px;
-  border-bottom: 1px solid #f0f4ed;
-  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  padding: 20rpx 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.record-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6rpx;
 }
-.record-item:last-child { border-bottom: none; }
-.record-item:active { background-color: #f8faf6; }
 
-.record-emotion {
-  font-size: 15px;
-  color: #5a5a5a;
-  font-weight: 400;
-}
-.record-want {
-  font-size: 13px;
-  color: #a8b5a0;
-}
 .record-date {
-  font-size: 12px;
-  color: #bbb;
+  font-size: 20rpx;
+  color: @text-secondary;
+}
+
+.record-feeling {
+  font-size: 26rpx;
+  color: @text-primary;
+}
+
+.record-desire {
+  font-size: 22rpx;
+  color: @accent;
+  opacity: 0.7;
+}
+
+.record-delete {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: @text-secondary;
+  flex-shrink: 0;
+
+  &:active {
+    background: rgba(255, 100, 100, 0.2);
+    color: #ff8888;
+  }
+}
+
+.records-empty {
+  text-align: center;
+  padding: 40rpx 0;
+  font-size: 24rpx;
+  color: @text-secondary;
+}
+
+// ── BGM 按钮 ─────────────────────────────────────────────
+.bgm-btn {
+  position: fixed;
+  bottom: 60rpx;
+  right: 40rpx;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid @border-subtle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+
+  &:active {
+    transform: scale(0.93);
+  }
+}
+
+.bgm-icon {
+  font-size: 40rpx;
+  line-height: 1;
 }

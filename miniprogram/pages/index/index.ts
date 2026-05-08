@@ -5,7 +5,7 @@ interface IAnyObject {
 
 interface ReleaseRecord {
   feeling: string
-  desire: string  // 被认可 / 想要控制 / 想要安全
+  desire: string
   desireText: string
   timestamp: number
 }
@@ -13,115 +13,21 @@ interface ReleaseRecord {
 const app = getApp<IAppOption>()
 
 // ──────────────────────────────────────────────────
-// 步骤配置：id, 类型, 文字, 描述
-// type: text=纯展示  input-feeling=输入感受  input-desire=输入想要什么
-//       choice-two=二选一  choice-three=三选一  reading=朗读页  end=结束
+// 步骤配置（与网页 S[] 一一对应）
+// 小程序步骤 = 网页步骤 - 2
+// 网页: 引导=0, 物件=1, I SEE YOU=2, 输入=3, ...
+// 小程序: 物件=1, I SEE YOU=3, 输入=4, 允许=5, ...
 // ──────────────────────────────────────────────────
-const STEPS = [
-  // 0: 引导语
-  { id: 0,  type: 'guide',         label: 'Step0-引导' },
-
-  // 1: 拿小物件体验
-  { id: 1,  type: 'text',          label: 'Step1-小物件' },
-
-  // 2: 这就是放下 → 自动进入 I SEE YOU
-  { id: 2,  type: 'auto-next',      label: 'Step2-这就是放下' },
-
-  // 3: I SEE YOU → 自动进入 Step4
-  { id: 3,  type: 'auto-next',      label: 'Step3-I SEE YOU' },
-
-  // 4: 输入感受
-  { id: 4,  type: 'input-feeling', label: 'Step4-有什么感受' },
-
-  // 5: 允许存在？
-  { id: 5,  type: 'choice-two',     label: 'Step5-允许存在' },
-
-  // 6: 愿意放下？
-  { id: 6,  type: 'choice-two',     label: 'Step6-愿意放下' },
-
-  // 7: 现在就放下可以吗
-  { id: 7,  type: 'choice-two',     label: 'Step7-现在就放下' },
-
-  // 8: 变淡还是清晰
-  { id: 8,  type: 'choice-two',     label: 'Step8-变淡还是清晰' },
-
-  // 9: 深呼吸感受离开
-  { id: 9,  type: 'auto-next',      label: 'Step9-深呼吸感受离开' },
-
-  // 10: 读出来（允许一切）
-  { id: 10, type: 'reading',        label: 'Step10-朗读' },
-
-  // 11: 结束
-  { id: 11, type: 'end',            label: 'Step11-结束' },
-
-  // 12: 情绪底下想要什么（三选一）
-  { id: 12, type: 'choice-three',   label: 'Step12-想要什么' },
-
-  // 13: 能否允许自己就是想要被认可
-  { id: 13, type: 'choice-two',     label: 'Step13-允许被认可' },
-  // 14-17: 被认可路径（说三遍）
-  { id: 14, type: 'speech',         label: 'Step14-说一遍被认可' },
-  { id: 15, type: 'speech',         label: 'Step15-说二遍被认可' },
-  { id: 16, type: 'speech',         label: 'Step16-说三遍被认可' },
-  { id: 17, type: 'feel',           label: 'Step17-感受想要' },
-
-  // 18: 能否允许自己就是想要控制
-  { id: 18, type: 'choice-two',     label: 'Step18-允许想要控制' },
-  // 19-21: 想要控制路径（说三遍）
-  { id: 19, type: 'speech',         label: 'Step19-说一遍想要控制' },
-  { id: 20, type: 'speech',         label: 'Step20-说二遍想要控制' },
-  { id: 21, type: 'speech',         label: 'Step21-说三遍想要控制' },
-
-  // 22: 能否允许自己就是想要安全
-  { id: 22, type: 'choice-two',     label: 'Step22-允许想要安全' },
-  // 23-25: 想要安全路径（说三遍）
-  { id: 23, type: 'speech',         label: 'Step23-说一遍想要安全' },
-  { id: 24, type: 'speech',         label: 'Step24-说二遍想要安全' },
-  { id: 25, type: 'speech',         label: 'Step25-说三遍想要安全' },
-
-  // 26: 不愿意底下想要什么
-  { id: 26, type: 'input-desire',   label: 'Step26-不愿底下想要什么' },
-  // 27: 能否允许自己就是想要这些
-  { id: 27, type: 'choice-two',     label: 'Step27-允许想要这些' },
-  // 28-30: 说三遍"我就是想要这样"
-  { id: 28, type: 'speech',         label: 'Step28-说一遍想要这样' },
-  { id: 29, type: 'speech',         label: 'Step29-说二遍想要这样' },
-  { id: 30, type: 'speech',         label: 'Step30-说三遍想要这样' },
-
-  // 31: 允许抗拒吗
-  { id: 31, type: 'choice-two',     label: 'Step31-允许抗拒吗' },
-  // 32: 不允许底下想要什么
-  { id: 32, type: 'input-desire',   label: 'Step32-不允许底下想要什么' },
-
-  // 33: 能不能现在就是不放下
-  { id: 33, type: 'choice-two',     label: 'Step33-能不能不放下' },
-  // 34: 深呼吸说出来
-  { id: 34, type: 'auto-next',      label: 'Step34-深呼吸说出来' },
-  // 35: 身体紧绷
-  { id: 35, type: 'text',           label: 'Step35-身体紧绷' },
-  // 36: 愿不愿意永远和紧绷待在一起
-  { id: 36, type: 'choice-two',     label: 'Step36-愿不愿意紧绷' },
-  // 37-38: 再问一遍/最后一遍
-  { id: 37, type: 'text',           label: 'Step37-再问一遍' },
-  { id: 38, type: 'text',           label: 'Step38-最后一遍' },
-  // 39: 好，那我们就一起待着
-  { id: 39, type: 'text',           label: 'Step39-一起待着' },
-  // 40: 读出来（允许一切）→ 结束
-  { id: 40, type: 'reading-end',    label: 'Step40-朗读结束' },
-]
-
 Page({
   data: {
-    currentStep: 0,
+    currentStep: -1,          // -1 = 显示引导层
     showContent: false,
-    // 用户输入
     feelingText: '',
-    desireType: '',     // 被认可 / 想要控制 / 想要安全
+    desireType: '',
     desireText: '',
-    // BGM
     bgmEnabled: true,
-    // 入场引导
-    introPhase: 1,
+    // 引导层阶段: -1=隐藏, 0=显示文字(浮现动画), 1=显示按钮
+    introPhase: -1,
     // 释放记录
     releaseRecords: [] as ReleaseRecord[],
     showRecordsPanel: false,
@@ -168,7 +74,7 @@ Page({
       desireText: desireText,
       timestamp: Date.now(),
     }
-    const records = [record, ...this.data.releaseRecords].slice(0, 10)
+    const records = [record, ...this.data.releaseRecords].slice(0, 20)
     this.setData({ releaseRecords: records })
     wx.setStorageSync('releaseRecords', records)
   },
@@ -181,6 +87,15 @@ Page({
       desireText: record.desireText,
       showRecordsPanel: false,
     })
+  },
+
+  deleteRecord(e: IAnyObject) {
+    e.stopPropagation()
+    const index = parseInt(e.currentTarget.dataset.index)
+    const records = [...this.data.releaseRecords]
+    records.splice(index, 1)
+    this.setData({ releaseRecords: records })
+    wx.setStorageSync('releaseRecords', records)
   },
 
   toggleRecordsPanel() {
@@ -198,30 +113,26 @@ Page({
 
   // ── 入场引导动画 ────────────────────────────────────────
   triggerGuideAnimation() {
-    const t = setTimeout(() => {
-      this.setData({ introPhase: 2 })
-    }, 1200)
-    this.privateTimers.push(t)
-  },
+    // 0ms: 引导层出现（opacity:1）
+    // 300ms: 文字开始浮现（blur消散 + translateY上移）
+    const t0 = setTimeout(() => {
+      this.setData({ introPhase: 0 })
+    }, 100)
+    this.privateTimers.push(t0)
 
-  onGuideTap() {
-    if (this.data.introPhase === 2) {
-      this.setData({ introPhase: 3 })
-      const t = setTimeout(() => {
-        this.setData({ introPhase: 0 })
-        this.setData({ showContent: true })
-      }, 500)
-      this.privateTimers.push(t)
-    }
+    // 1800ms: 按钮淡入
+    const t1 = setTimeout(() => {
+      this.setData({ introPhase: 1 })
+    }, 1800)
+    this.privateTimers.push(t1)
   },
 
   // ── 通用跳转 ───────────────────────────────────────────
   goToStep(step: number) {
-    // 单次 setData，避免微信批处理延迟
     this.setData({ currentStep: step, showContent: false })
     setTimeout(() => {
       this.setData({ showContent: true })
-    }, 100)
+    }, 580)
   },
 
   // ── 输入 ──────────────────────────────────────────────
@@ -233,45 +144,54 @@ Page({
     this.setData({ desireText: e.detail.value })
   },
 
-  // ── 引导页点击 → 进入流程 ──────────────────────────────
+  // ── 引导页点击"是/否" ────────────────────────────────
   onGuideChoice(e: IAnyObject) {
     const choice = e.currentTarget.dataset.value
-    // 合并为一次 setData: 清除引导 + 跳转步骤 + 隐藏内容（等100ms再显示）
-    this.setData({ introPhase: 0, currentStep: choice === '是' ? 3 : 1, showContent: false })
+    // 是 → I SEE YOU (step=3)，否 → 物件 (step=1)
+    const nextStep = choice === '是' ? 3 : 1
+    this.setData({ introPhase: -1, currentStep: nextStep, showContent: false })
     setTimeout(() => {
       this.setData({ showContent: true })
-    }, 100)
+    }, 580)
   },
 
-  // ── Step 4 → Step 5 ──────────────────────────────────
+  // ── Step 4: 输入感受 ──────────────────────────────────
   onFeelingConfirm() {
-    this.goToStep(5)
+    const text = this.data.feelingText.trim()
+    if (text) {
+      this.saveReleaseRecord()
+    }
+    this.goToStep(5)  // 网页 S[4] = 小程序 step[5]
   },
 
   // ── Step 5: 允许存在？ ────────────────────────────────
+  // S[4]: 允许→5, 不允许→30
   onAllowExist(e: IAnyObject) {
     if (e.currentTarget.dataset.value === '允许') {
       this.goToStep(6)
     } else {
-      this.goToStep(31)
+      this.goToStep(30)
     }
   },
 
   // ── Step 6: 愿意放下？ ────────────────────────────────
+  // S[5]: 愿意→6, 不愿意→25
   onWantRelease(e: IAnyObject) {
     if (e.currentTarget.dataset.value === '愿意') {
       this.goToStep(7)
     } else {
-      this.goToStep(26)
+      this.goToStep(25)
     }
   },
 
-  // ── Step 7: 现在就放下？ ──────────────────────────────
-  onCanReleaseNow(e: IAnyObject) {
+  // ── Step 7: 现在就放下？ ─────────────────────────────
+  // S[6]: 都可以→7
+  onCanReleaseNow() {
     this.goToStep(8)
   },
 
   // ── Step 8: 变淡还是清晰 ──────────────────────────────
+  // S[7]: 变淡→8, 清晰→11
   onFeelChange(e: IAnyObject) {
     if (e.currentTarget.dataset.value === '变淡') {
       this.goToStep(9)
@@ -280,22 +200,24 @@ Page({
     }
   },
 
-  // ── Step 9: 深呼吸 → 自动读出来 ──────────────────────
+  // ── Step 9: 深呼吸（← → 导航）─────────────────────
+  // S[8]: nav, next=9
   onStep9Back() {
     this.goToStep(8)
-  }
+  },
 
-  goToReading() {
-    this.saveReleaseRecord()
+  onStep9Next() {
     this.goToStep(10)
   },
 
   // ── Step 10: 读出来 → 结束 ──────────────────────────
+  // S[9]: nav, next=10
   onReadingDone() {
     this.goToStep(11)
   },
 
-  // ── Step 12: 想要什么（三选一）───────────────────────
+  // ── Step 12: 三选一 ────────────────────────────────
+  // S[11]: desireGrid → 被认可=13, 控制=18, 安全=22
   onChooseDesire(e: IAnyObject) {
     const value = e.currentTarget.dataset.value
     this.setData({ desireType: value })
@@ -309,6 +231,7 @@ Page({
   },
 
   // ── Step 13/18/22: 能否允许想要？ ────────────────────
+  // S[12/17/21]: 能→14/19/23, 不能→31
   onAllowDesire(e: IAnyObject) {
     if (e.currentTarget.dataset.value === '能') {
       const step = this.data.currentStep
@@ -316,26 +239,14 @@ Page({
       else if (step === 18) this.goToStep(19)
       else this.goToStep(23)
     } else {
-      this.goToStep(33)
+      this.goToStep(31)
     }
   },
 
-  // ── Step 1: 拿小物件 → Step 2 ──────────────────────
-  onStep1Next() {
-    this.goToStep(2)
-  },
-
-  // ── Step 2: 这就是放下 → Step 3 ───────────────────
-  onStep2Next() {
-    this.goToStep(3)
-  },
-
-  // ── Step 3: I SEE YOU → Step 4 ───────────────────
-  onStep3Next() {
-    this.goToStep(4)
-  },
-
   // ── Step 14/15/16: 说三遍 ────────────────────────────
+  // S[13/14/15]: nav, next=15/16/17
+  // Step 17: 感受想要 → S[9]
+  // S[19/20/21]: nav → 20/21/17
   onSpeechDone() {
     const step = this.data.currentStep
     if (step === 14) this.goToStep(15)
@@ -353,101 +264,115 @@ Page({
   },
 
   // ── Step 17: 感受想要 → 读出来 ──────────────────────
+  // S[16]: nav, next=9
   onFeelDone() {
     this.saveReleaseRecord()
     this.goToStep(10)
   },
 
-  // ── Step 26/32: 输入想要什么 ─────────────────────────
+  // ── Step 1/2/3 (物件/I SEE YOU/感受输入) ──────────
+  onStep1Next() { this.goToStep(2) }    // S[1]: nav, next=2
+  onStep2Next() { this.goToStep(3) }    // S[2]: nav, next=3
+  onStep3Next() { this.goToStep(4) }    // S[3]: input, next=4
+
+  // ── Step 26: 不愿意底下想要什么 ──────────────────────
+  // S[25]: nav, next=26
   onDesireConfirm() {
     this.goToStep(27)
   },
 
   // ── Step 27: 能否允许想要这些？ ─────────────────────
+  // S[26]: 能→28, 不能→32
   onAllowThese(e: IAnyObject) {
     if (e.currentTarget.dataset.value === '能') {
       this.goToStep(28)
-    } else {
-      this.goToStep(33)
-    }
-  },
-
-  // ── Step 31: 允许抗拒？ ──────────────────────────────
-  onAllowResistance(e: IAnyObject) {
-    if (e.currentTarget.dataset.value === '允许') {
-      this.goToStep(33)
     } else {
       this.goToStep(32)
     }
   },
 
-  // ── Step 33: 能不能不放下 ───────────────────────────
-  onCanNotRelease(e: IAnyObject) {
-    if (e.currentTarget.dataset.value === '能') {
-      this.goToStep(34)
+  // ── Step 30: 允许抗拒？ ──────────────────────────────
+  // S[29]: 允许→30, 不允许→31
+  // 小程序 step 30 = S[29]
+  onAllowResistance(e: IAnyObject) {
+    if (e.currentTarget.dataset.value === '允许') {
+      this.goToStep(30)
     } else {
-      this.goToStep(35)
+      this.goToStep(31)
     }
   },
 
-  // ── Step 34: 深呼吸说出来 → 读出来 ──────────────────
+  // ── Step 31: 不允许底下想要什么 ──────────────────────
+  // S[30]: nav, next=32
+  // Step 32: 能→33, 不能→34
+  // S[31]: choice
+  onCanNotRelease(e: IAnyObject) {
+    if (e.currentTarget.dataset.value === '能') {
+      this.goToStep(33)
+    } else {
+      this.goToStep(34)
+    }
+  },
+
+  // ── Step 33: 深呼吸说出来 → S[9] ──────────────────
+  // S[32]: nav, next=9
   onBreatheDone() {
     this.saveReleaseRecord()
     this.goToStep(10)
   },
 
-  // ── Step 35: 身体紧绷 → Step 36 ────────────────────
+  // ── Step 34: 身体紧绷 ──────────────────────────────
+  // S[33]: nav, next=35
   onTensionNext() {
-    this.goToStep(36)
+    this.goToStep(35)
   },
 
-  // ── Step 36: 愿不愿意和紧绷待在一起 ─────────────────
+  // ── Step 35: 愿不愿意和紧绷待在一起 ─────────────────
+  // S[34]: choice, 愿意→36, 不愿意→6
   onStayWithTension(e: IAnyObject) {
     if (e.currentTarget.dataset.value === '愿意') {
-      this.goToStep(37)
+      this.goToStep(36)
     } else {
-      this.goToStep(6)  // 循环回去
+      this.goToStep(7)
     }
   },
 
-  // ── Step 37: 再问一遍 → Step 38 ────────────────────
-  onTensionAgain() {
-    this.goToStep(38)
-  },
+  // ── Step 36/37/38 ───────────────────────────────────
+  onTensionAgain() { this.goToStep(37) }
+  onTensionFinal() { this.goToStep(38) }
+  onStayTogether() { this.goToStep(39) }
 
-  // ── Step 38: 最后一遍 → Step 39 ────────────────────
-  onTensionFinal() {
-    this.goToStep(39)
-  },
-
-  // ── Step 39: 好，我们一起待着 → Step 40 ─────────────
-  onStayTogether() {
-    this.goToStep(40)
-  },
-
-  // ── Step 40: 朗读 → 结束 ────────────────────────────
+  // ── Step 39: 读出来 → 结束 ──────────────────────────
   onFinalReadingDone() {
     this.goToStep(11)
   },
 
-  // ── 点击屏幕（引导阶段） ──────────────────────────────
-  handleTap() {
-    if (this.data.introPhase === 2) {
-      this.onGuideTap()
-      return
-    }
+  // ── ← 返回引导页 ────────────────────────────────────
+  onBackToGuide() {
+    this.clearAllTimers()
+    this.setData({
+      currentStep: -1,
+      showContent: false,
+      feelingText: '',
+      desireType: '',
+      desireText: '',
+      introPhase: -1,
+    })
+    setTimeout(() => {
+      this.triggerGuideAnimation()
+    }, 100)
   },
 
   // ── 重新开始 ──────────────────────────────────────────
   restartPractice() {
     this.clearAllTimers()
     this.setData({
-      currentStep: 0,
+      currentStep: -1,
       showContent: false,
       feelingText: '',
       desireType: '',
       desireText: '',
-      introPhase: 1,
+      introPhase: -1,
     })
     setTimeout(() => {
       this.triggerGuideAnimation()
